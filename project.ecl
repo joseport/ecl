@@ -16,13 +16,30 @@
     */
 
 
+restrs_anos_consecutivos(Unidade_curr,X,[],L1,L2) :- seleccionar_vars(L1,Unidade_curr,X,Consec1),
+  %write(Comsecs1),nl,
+  ic_global:alldifferent(Consec1).
+
+restrs_anos_consecutivos(Unidade_curr,X,[H|T],L1,L2) :- unidade_curr(H,_,A,_,_),
+  anos(H,T,A,L1,L2,X,Unidade_curr).
+
+anos(H, T, 1, L1, L2,X,Unidade_curr) :- append(L1,[H],L3), restrs_anos_consecutivos(Unidade_curr,X,T, L3, L2).
+anos(H, T, 2, L1, L2,X,Unidade_curr) :- append(L1,[H],L3), append(L2,[H],L4), restrs_anos_consecutivos(Unidade_curr,X,T,L3,L4).
+anos(H, T, 3, L1, L2,X,Unidade_curr) :- append(L2,[H],L3), restrs_anos_consecutivos(Unidade_curr,X,T,L1,L3).
+
+
 d :- obter_dados(Unidade_curr,Estudante,E,D),
     length(Unidade_curr,NDisc), length(X,NDisc),
     X #:: 1..30, Y #:: 0..29,  %Y #>= 0, Y #< 30,
+
     restrs_espacamento(E,1,X,Unidade_curr),
     restrs_sobreposicoes(Estudante,X,Unidade_curr),
+    restrs_anos_consecutivos(Unidade_curr,X,Unidade_curr,[],[]),
+
     restrs_estender_epoca(X,Y,D),
+
     minimize(labeling([Y|X]),Y),
+
     escrever_solucao(X,Y,Unidade_curr).
 
 obter_dados(Unidade_curr,Estudante,E,D) :-
@@ -30,13 +47,12 @@ obter_dados(Unidade_curr,Estudante,E,D) :-
     findall(J,estudante(J,_,_),Estudante),
     intervalos_anos(E,_),
     calendario(_,A), % Modificado para obter o numero de dias uteis atravez do calendario
-    length(A,D),
-    write(D),nl.
+    length(A,D).
 
 
 restrs_espacamento([],_,_,_).
 restrs_espacamento([Ek|RE],K,X,Unidade_curr) :-
-    findall(I,unidade_curr(I,_,K,_,_),DiscAnoK),
+    findall(I,unidade_curr(I,_,K,_,_),DiscAnoK), % discanok tem a lista de cadeiras por ano
     seleccionar_vars(DiscAnoK,Unidade_curr,X,XDiscAnoK),
     restrs_espacamento_k(XDiscAnoK,Ek),
     K1 is K+1, restrs_espacamento(RE,K1,X,Unidade_curr).
@@ -63,10 +79,11 @@ restrs_sobreposicoes([J|REstudante],X,Unidade_curr) :-
 restrs_estender_epoca([],_,_).
 restrs_estender_epoca([Xi|RX],Y,D) :- Xi #=< D+Y,
     restrs_estender_epoca(RX,Y,D).
-
+%seleccionar_vars(DiscAnoK,Unidade_curr,X,XDiscAnoK),
 seleccionar_vars([],_,_,[]).
 seleccionar_vars([I|RDisc],Unidade_curr,X,[Xi|XRDisc]) :-
-    selec_elemento(1,T,Unidade_curr,I), selec_elemento(1,T,X,Xi),
+    selec_elemento(1,T,Unidade_curr,I), %Retorna o index do I
+    selec_elemento(1,T,X,Xi), %  Xi=X[t] Posições de memoria?
     seleccionar_vars(RDisc,Unidade_curr,X,XRDisc).
 
 selec_elemento(T,T,[I|_],I) :- !.

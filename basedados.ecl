@@ -13,23 +13,13 @@ unidade_curr(14,'Sistemas de Operacao',2,2,16).
 unidade_curr(10,'Bases de Dados',2,2,14).
 unidade_curr(11,'Metodos de Apoio a Decisao',3,2,9).
 unidade_curr(12,'Computabilidade e Complexidade',3,2,11).
-unidade_curr(13,'Compiladores',3,1,11).
+unidade_curr(13,'Compiladores',3,1,12).
 
 % codigo estudante | Nome | Lista de codigos das unidades curriculares incritas
-estudante(20151,'Joao',[1,3,6,7,10]).
-estudante(20152,'Maria',[1,5,6,10]).
-estudante(20153,'Tiago',[1,5,6,8,7]).
-estudante(20121,'Mafalda',[1,2,3,5,6,9]).
-estudante(20131,'Joao',[8,9,10]).
-estudante(20132,'Andre',[1,5,6,3]).
-estudante(20161,'Nuno',[2,3,8,12]).
-estudante(20111,'jose',[12,13,1,4]).
-estudante(20154,'Amorim',[2,3,4,5]).
-estudante(20141,'Joao',[1,3,6,7,10]).
-estudante(20142,'Maria',[1,5,6,10]).
-estudante(20133,'Tiago',[1,5,6,8,7]).
-estudante(20162,'Mafalda',[1,2,3,5,6,9]).
-estudante(20163,'Joao',[8,9,10]).
+estudante(20151,'Joao',[1,3]).
+estudante(20152,'Maria',[7,10,11]).
+estudante(20153,'Tiago',[11,7]).
+
 
 
 % numero de dias uteis da epoca normal
