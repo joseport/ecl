@@ -16,16 +16,20 @@
     */
 
 
-restrs_anos_consecutivos(Unidade_curr,X,[],L1,L2) :- seleccionar_vars(L1,Unidade_curr,X,Consec1),
-  %write(Comsecs1),nl,
-  ic_global:alldifferent(Consec1).
 
-restrs_anos_consecutivos(Unidade_curr,X,[H|T],L1,L2) :- unidade_curr(H,_,A,_,_),
-  anos(H,T,A,L1,L2,X,Unidade_curr).
 
-anos(H, T, 1, L1, L2,X,Unidade_curr) :- append(L1,[H],L3), restrs_anos_consecutivos(Unidade_curr,X,T, L3, L2).
-anos(H, T, 2, L1, L2,X,Unidade_curr) :- append(L1,[H],L3), append(L2,[H],L4), restrs_anos_consecutivos(Unidade_curr,X,T,L3,L4).
-anos(H, T, 3, L1, L2,X,Unidade_curr) :- append(L2,[H],L3), restrs_anos_consecutivos(Unidade_curr,X,T,L1,L3).
+
+
+restrs_anos_consecutivos(Unidade_curr,X,L1,L2) :- 
+    findall(I, unidade_curr(I,_,1,_,_),Lt1),
+    findall(I, unidade_curr(I,_,2,_,_),Lt2),
+    findall(I, unidade_curr(I,_,3,_,_),Lt3),
+    append(Lt1,Lt2,L1),
+    append(Lt2,Lt3,L2),
+    seleccionar_vars(L1,Unidade_curr,X,Consec1),
+    seleccionar_vars(L2,Unidade_curr,X,Consec2),
+    ic_global:alldifferent(Consec1),
+    ic_global:alldifferent(Consec2).
 
 
 d :- obter_dados(Unidade_curr,Estudante,E,D),
@@ -34,12 +38,11 @@ d :- obter_dados(Unidade_curr,Estudante,E,D),
 
     restrs_espacamento(E,1,X,Unidade_curr),
     restrs_sobreposicoes(Estudante,X,Unidade_curr),
-    restrs_anos_consecutivos(Unidade_curr,X,Unidade_curr,[],[]),
-
+    
+    restrs_anos_consecutivos(Unidade_curr,X,L1,L2),
+    
     restrs_estender_epoca(X,Y,D),
-
     minimize(labeling([Y|X]),Y),
-
     escrever_solucao(X,Y,Unidade_curr).
 
 obter_dados(Unidade_curr,Estudante,E,D) :-
