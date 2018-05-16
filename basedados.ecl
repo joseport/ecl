@@ -26,7 +26,7 @@ estudante(20153,'Tiago',[11,7]).
 % fica a faltar implementar a epoca de recurso
 %numeroDiasUteis(10).
 %calendario(Epoca,ListaOrdenadaDatasPossiveis) d(DiaMes,Mes,DiaSemana)
-calendario(1,[d(4,6,2),d(5,6,3),d(6,6,4),d(7,6,5),d(8,6,6),d(11,6,2),d(12,6,3),d(13,6,4),d(14,6,5),d(15,6,6)]).
+calendario(1,[d(4,6,2),d(5,6,3),d(6,6,4),d(7,6,5),d(8,6,6),d(11,6,2),d(12,6,3),d(13,6,4),d(14,6,5),d(15,6,6),d(18,6,2),d(19,6,3),d(20,6,4),d(21,6,5),d(22,6,6),d(25,6,3),d(26,6,4),d(27,6,5),d(28,6,6)]).
 
 % lista espacamentos minimos por ano | intervalo min para almoco
 intervalos_anos([4,3,2],[2,1,1]).

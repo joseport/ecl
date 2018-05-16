@@ -16,8 +16,14 @@
     */
 
 
+obter_dias_( d(D,_,_) ,D):- !.
 
 
+obter_dias([],K):- !.
+obter_dias([CHead|CRest], K) :- 
+    obter_dias_(CHead,D),
+    obter_dias(CRest,K1),
+    append(K1,[D],K).
 
 
 restrs_anos_consecutivos(Unidade_curr,X,L1,L2) :- 
@@ -32,10 +38,9 @@ restrs_anos_consecutivos(Unidade_curr,X,L1,L2) :-
     ic_global:alldifferent(Consec2).
 
 
-d :- obter_dados(Unidade_curr,Estudante,E,D),
+d :- obter_dados(Unidade_curr,Estudante,E,D,K),
     length(Unidade_curr,NDisc), length(X,NDisc),
-    X #:: 1..30, Y #:: 0..29,  %Y #>= 0, Y #< 30,
-
+    X #:: K, Y #:: 0..29,  %Y #>= 0, Y #< 30,
     restrs_espacamento(E,1,X,Unidade_curr),
     restrs_sobreposicoes(Estudante,X,Unidade_curr),
     
@@ -45,9 +50,12 @@ d :- obter_dados(Unidade_curr,Estudante,E,D),
     minimize(labeling([Y|X]),Y),
     escrever_solucao(X,Y,Unidade_curr).
 
-obter_dados(Unidade_curr,Estudante,E,D) :-
+obter_dados(Unidade_curr,Estudante,E,D,K) :-
     findall(I,unidade_curr(I,_,_,_,_),Unidade_curr),
     findall(J,estudante(J,_,_),Estudante),
+    calendario(_,C),
+    obter_dias(C,K),
+    write(K),nl,
     intervalos_anos(E,_),
     calendario(_,A), % Modificado para obter o numero de dias uteis atravez do calendario
     length(A,D).
