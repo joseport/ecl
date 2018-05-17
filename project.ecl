@@ -7,55 +7,39 @@
 :- lib(ic_global).
 :- lib(branch_and_bound).
 :- compile(basedados).
-    /*
-       basedados.pl tera predicados indicados no enunciado
-            unidade_curr(CodigoDisc,Ano,NomeDisc)
-            estudante(CodigoAluno,NomeAluno,ListaCodigosDiscInscrito)
-            numeroDiasUteis(NumeroDiasUteis)
-            espacamentosMinimos(ListaEspacamentosOrdenadaPorAnos)
-    */
-
-restrs_anos_consecutivos(Unidade_curr,X,[],L1,L2) :- seleccionar_vars(L1,Unidade_curr,X,Consec1),
-  seleccionar_vars(L2,Unidade_curr,X,Consec2),
-  ic_global:alldifferent(Consec1),
-  ic_global:alldifferent(Consec2).
-
-restrs_anos_consecutivos(Unidade_curr,X,[H|T],L1,L2) :- unidade_curr(H,_,A,_,_),
-  anos(H,T,A,L1,L2,X,Unidade_curr).
-
-anos(H, T, 1, L1, L2,X,Unidade_curr) :- append(L1,[H],L3), restrs_anos_consecutivos(Unidade_curr,X,T, L3, L2).
-anos(H, T, 2, L1, L2,X,Unidade_curr) :- append(L1,[H],L3), append(L2,[H],L4), restrs_anos_consecutivos(Unidade_curr,X,T,L3,L4).
-anos(H, T, 3, L1, L2,X,Unidade_curr) :- append(L2,[H],L3), restrs_anos_consecutivos(Unidade_curr,X,T,L1,L3).
-
 
 d :- obter_dados(Unidade_curr,Estudante,E,D,K),
     length(Unidade_curr,NDisc), length(X,NDisc),
     X #:: K,
     restrs_espacamento(E,1,X,Unidade_curr),
     restrs_sobreposicoes(Estudante,X,Unidade_curr),
-    restrs_anos_consecutivos(Unidade_curr,X,Unidade_curr,[],[]),
+    restrs_anos_consecutivos(Unidade_curr,X,L1,L2),
     %restrs_estender_epoca(X,D),
     labeling(X),
-    %restrs_salas(Unidade_curr,Estudante,X),
+    restrs_salas(Unidade_curr,Estudante,X),
 
     escrever_calendario(Unidade_curr,X).
 
 restrs_salas(Unidade_curr,Estudante,X):-
   searchRepetidos(X,L,Repetidos),
-  inscritos(Unidade_curr,Estudante,Incritos).
+  inscritos(Unidade_curr,Estudante,I,Inscritos),
+  write(Inscritos),nl.
 
-inscritos([],Estudante,Inscritos).
-inscritos([H|T],Estudante,Inscritos):-
+
+
+
+inscritos([],Estudante,Inscritos,V):- append(Inscritos,[],V).
+inscritos([H|T],Estudante,Inscritos,V):-
 
   C is 0,
   inscritos_(H,Estudante,C,Cont),
-  append(Cont,[],Ins),
-  inscritos(T,Estudante,Ins).
+  vazio(Cont,Inscritos,Ins),
+  inscritos(T,Estudante,Ins,V).
 
-inscritos_(Codigo,[],C,Cont):- append(C,[],Cont).
+inscritos_(Codigo,[],C,[C]):- !.
 inscritos_(Codigo,[H|T],C,Cont):-
   estudante(H,_,Cadeiras),
-  member(H,Cadeiras), Cn is C+1, inscritos_(Codigo,T,Cn,Cont);
+  (member(Codigo,Cadeiras), Cn is C+1,inscritos_(Codigo,T,Cn,Cont));
   inscritos_(Codigo,T,C,Cont).
 
 vazio([],[],L2).
@@ -74,6 +58,18 @@ searchRepetidos([P|Rest],L,V) :-
 search_([],L,P):- !.%write(L),nl.
 search_([P|Rest],L,P) :- search_([], L2, P),append(L2,[P],L).
 search_([S|Rest],L,P) :- search_(Rest, L, P).
+
+
+restrs_anos_consecutivos(Unidade_curr,X,L1,L2) :- 
+    findall(I, unidade_curr(I,_,1,_,_),Lt1),
+    findall(I, unidade_curr(I,_,2,_,_),Lt2),
+    findall(I, unidade_curr(I,_,3,_,_),Lt3),
+    append(Lt1,Lt2,L1),
+    append(Lt2,Lt3,L2),
+    seleccionar_vars(L1,Unidade_curr,X,Consec1),
+    seleccionar_vars(L2,Unidade_curr,X,Consec2),
+    ic_global:alldifferent(Consec1),
+    ic_global:alldifferent(Consec2).
 
 obter_dias_( d(D,_,_) ,D):- !.
 
@@ -119,10 +115,6 @@ restrs_sobreposicoes([J|REstudante],X,Unidade_curr) :-
     ic_global:alldifferent(XDiscAlunoJ),
     restrs_sobreposicoes(REstudante,X,Unidade_curr).
 
-
-restrs_estender_epoca([],_).
-restrs_estender_epoca([Xi|RX],D) :- Xi #=< D,
-    restrs_estender_epoca(RX,D).
 %seleccionar_vars(DiscAnoK,Unidadse_curr,X,XDiscAnoK),
 seleccionar_vars([],_,_,[]).
 seleccionar_vars([I|RDisc],Unidade_curr,X,[Xi|XRDisc]) :-
@@ -133,11 +125,6 @@ seleccionar_vars([I|RDisc],Unidade_curr,X,[Xi|XRDisc]) :-
 selec_elemento(T,T,[I|_],I) :- !.
 selec_elemento(T0,T,[_|R],I) :- T0n is T0+1, selec_elemento(T0n,T,R,I).
 
-escrever_solucao(X,Y,Unidade_curr) :- Y = 0,
-    nl, escrever_calendario(Unidade_curr,X).
-escrever_solucao(X,Y,Unidade_curr) :- Y \= 0,
-    write('Estender epoca de '), write(Y), write(' dias uteis'), nl,
-    nl, escrever_calendario(Unidade_curr,X).
 
 
 escrever_calendario([],[]).
