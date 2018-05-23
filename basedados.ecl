@@ -41,7 +41,7 @@ calendario(1,[d(4,6,2),d(5,6,3),d(6,6,4),d(7,6,5),d(8,6,6),d(11,6,2),d(12,6,3),d
 % lista espacamentos minimos por ano | intervalo min para almoco
 intervalos_anos([4,3,2],[2,1,1]).
 
-capacidade_sala(207, 5).
-capacidade_sala(206, 3).
-capacidade_sala(009, 2).
-capacidade_sala(114, 4).
+capacidade_sala(207, 1).
+capacidade_sala(206, 4).
+capacidade_sala(009, 6).
+capacidade_sala(114, 8).

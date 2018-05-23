@@ -8,30 +8,43 @@
 :- lib(branch_and_bound).
 :- compile(basedados).
 
-d :- obter_dados(Unidade_curr,Estudante,E,D,K),
-    length(Unidade_curr,NDisc), length(X,NDisc),
-    X #:: K,
-    restrs_espacamento(E,1,X,Unidade_curr),
-    restrs_sobreposicoes(Estudante,X,Unidade_curr),
-    restrs_anos_consecutivos(Unidade_curr,X,L1,L2),
-    
-    labeling(X),
-    restrs_salas(Unidade_curr,Estudante,X),
-    escrever_calendario(Unidade_curr,X).
-
-
-restrs_salas():-
-
-.
-
-
-restrs_salas(Unidade_curr,Estudante,X):-
-  searchRepetidos(X,L,Repetidos),
+d :- obter_dados(Unidade_curr,Estudante,Salas,E,Kx),
+  length(Unidade_curr,NDisc), length(X,NDisc), length(S,NDisc), length(H,NDisc),
+  X #:: Kx, S #:: Salas, H #:: 9..18,
+  restrs_espacamento(E,1,X,Unidade_curr),
+  restrs_sobreposicoes(Estudante,X,Unidade_curr),
+  restrs_anos_consecutivos(Unidade_curr,X,L1,L2),
   inscritos(Unidade_curr,Estudante,I,Inscritos),
   vintePorcento(Inscritos,I,AlunosPSala),
-  findall(T, capacidade_sala(T,_),Salas),
-  X #= X, write(X),nl.
+  restrs_salas(S,Salas,AlunosPSala),
 
+  labeling(S),
+  %labeling(S),
+  write(S),nl,
+  %%labeling(H),
+  %restrs_salas(Unidade_curr,Estudante,X),
+  escrever_calendario(Unidade_curr,S).
+
+
+restrs_salas(_,_,[]).
+restrs_salas([Shead|Srest],Salas,[Insc|Rest]):-
+  findall(I,capacidade_sala(I,_),CapacidadesSalas),
+  %seleccionar_vars(CapacidadesSalas,Salas,S,SCapacidadesSalas),
+  %write(SCapacidadesSalas),nl.
+  %restrs_salas_s(Shead,Insc),
+  restrs_salas_s_(Shead,Insc),
+  restrs_salas(Srest,Salas,Rest).
+
+/*
+%restrs_salas_s([],Insc).
+restrs_salas_s(Si,Insc):-
+  restrs_salas_s_(Si,Insc)
+  .%restrs_salas_s(Sr,Insc).
+*/
+
+restrs_salas_s_(Si,Insc):-
+  Integer is integer(Insc),
+  capacidade_sala(Si) #>= Integer.
 
 
 vintePorcento([],AlunosPSala,Retorno):-append(AlunosPSala,[],Retorno).
@@ -43,7 +56,6 @@ vintePorcento([H|T],AlunosPSala,Retorno):-
 
 inscritos([],Estudante,Inscritos,V):- append(Inscritos,[],V).
 inscritos([H|T],Estudante,Inscritos,V):-
-
   C is 0,
   inscritos_(H,Estudante,C,Cont),
   vazio(Cont,Inscritos,Ins),
@@ -68,7 +80,7 @@ searchRepetidos([P|Rest],L,V) :-
     vazio(L1,L,L2),
     searchRepetidos(Rest,L2,V).
 
-search_([],L,P):- !.%write(L),nl.
+search_([],L,P):- !.
 search_([P|Rest],L,P) :- search_([], L2, P),append(L2,[P],L).
 search_([S|Rest],L,P) :- search_(Rest, L, P).
 
@@ -94,16 +106,16 @@ obter_dias([CHead|CRest], K) :-
     append(K1,[D],K).
 
 
-obter_dados(Unidade_curr,Estudante,E,D,K) :-
+%tirei o calendari(_,A),length (A,D).
+% E sao os intervalos dos anos
+obter_dados(Unidade_curr,Estudante,Salas,E,Kx) :-
     findall(I,unidade_curr(I,_,_,_,_),Unidade_curr),
     findall(J,estudante(J,_,_),Estudante),
+    findall(L,capacidade_sala(L,_),Salas),
     calendario(_,C),
-    obter_dias(C,K),
-    intervalos_anos(E,_),
-    calendario(_,A), % Modificado para obter o numero de dias uteis atravez do calendario
-    length(A,D).
-
-
+    obter_dias(C,Kx),
+    intervalos_anos(E,_).
+    
 restrs_espacamento([],_,_,_).
 restrs_espacamento([Ek|RE],K,X,Unidade_curr) :-
     findall(I,unidade_curr(I,_,K,_,_),DiscAnoK), % discanok tem a lista de cadeiras por ano
