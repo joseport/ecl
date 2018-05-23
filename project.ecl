@@ -17,14 +17,28 @@ d :- obter_dados(Unidade_curr,Estudante,Salas,E,Kx),
   inscritos(Unidade_curr,Estudante,I,Inscritos),
   vintePorcento(Inscritos,I,AlunosPSala),
   restrs_salas(S,Salas,AlunosPSala),
+  restrs_horas(H,X,S),
 
-  labeling(S),
+  labeling(H),
   %labeling(S),
+  %labeling(H),
+  write(X),nl,
   write(S),nl,
+  write(H),nl,
+
   %%labeling(H),
   %restrs_salas(Unidade_curr,Estudante,X),
-  escrever_calendario(Unidade_curr,S).
+  escrever_calendario(Unidade_curr,H).
 
+
+restrs_horas([],[],[]).
+restrs_horas([Hi|Hr],[Xi|Xr],[Si|Sr]):-
+  restrs_horas_h(Hi,Hr,Xi,Xr,Si,Sr),
+  restrs_horas(Hr,Xr,Sr).
+
+restrs_horas_h(_,[],_,[],_,[]).
+restrs_horas_h(Hi,[Hri|Hrr],Xi,[Xi|Xrr],Si,[Si|Srr]):- Hi #\= Hri.
+restrs_horas_h(Hi,[Hri|Hrr],Xi,[Xri|Xrr],Si,[Sri|Srr]):- restrs_horas_h(Hi,Hrr,Xi,Xrr,Si,Srr).
 
 restrs_salas(_,_,[]).
 restrs_salas([Shead|Srest],Salas,[Insc|Rest]):-
