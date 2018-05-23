@@ -14,19 +14,32 @@ d :- obter_dados(Unidade_curr,Estudante,E,D,K),
     restrs_espacamento(E,1,X,Unidade_curr),
     restrs_sobreposicoes(Estudante,X,Unidade_curr),
     restrs_anos_consecutivos(Unidade_curr,X,L1,L2),
-    %restrs_estender_epoca(X,D),
+    
     labeling(X),
     restrs_salas(Unidade_curr,Estudante,X),
-
     escrever_calendario(Unidade_curr,X).
+
+
+restrs_salas():-
+
+.
+
 
 restrs_salas(Unidade_curr,Estudante,X):-
   searchRepetidos(X,L,Repetidos),
   inscritos(Unidade_curr,Estudante,I,Inscritos),
-  write(Inscritos),nl.
+  vintePorcento(Inscritos,I,AlunosPSala),
+  findall(T, capacidade_sala(T,_),Salas),
+  X #= X, write(X),nl.
 
 
 
+vintePorcento([],AlunosPSala,Retorno):-append(AlunosPSala,[],Retorno).
+vintePorcento([H|T],AlunosPSala,Retorno):-
+  El is H*80,
+  Er is round(El/100),
+  vazio([Er],AlunosPSala,Lista),
+  vintePorcento(T,Lista,Retorno).
 
 inscritos([],Estudante,Inscritos,V):- append(Inscritos,[],V).
 inscritos([H|T],Estudante,Inscritos,V):-
@@ -60,7 +73,8 @@ search_([P|Rest],L,P) :- search_([], L2, P),append(L2,[P],L).
 search_([S|Rest],L,P) :- search_(Rest, L, P).
 
 
-restrs_anos_consecutivos(Unidade_curr,X,L1,L2) :- 
+%MUDAAAAR
+restrs_anos_consecutivos(Unidade_curr,X,L1,L2) :-
     findall(I, unidade_curr(I,_,1,_,_),Lt1),
     findall(I, unidade_curr(I,_,2,_,_),Lt2),
     findall(I, unidade_curr(I,_,3,_,_),Lt3),
